@@ -85,7 +85,7 @@ local defaults = {
     test = { prompt = "Add tests for @this", submit = true },
   },
   ask = {
-    prompt = "Ask opencode: ",
+    prompt = "Ask test: ",
     completion = "customlist,v:lua.opencode_completion",
     snacks = {
       icon = "󰚩 ",
