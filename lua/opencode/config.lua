@@ -19,14 +19,11 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Contexts to inject into prompts, keyed by their placeholder.
 ---@field contexts? table<string, fun(context: opencode.Context): string|nil>
 ---
----Prompts to reference or select from.
----@field prompts? table<string, opencode.Prompt>
----
 ---Options for `ask()`.
 ---Supports [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---@field ask? opencode.ask.Opts
 ---
----Options for `select()`.
+---Options and items for `select()`.
 ---Supports [`snacks.picker`](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md).
 ---@field select? opencode.select.Opts
 ---
@@ -35,10 +32,6 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---
 ---Options for `opencode` event handling.
 ---@field events? opencode.events.Opts
-
----@class opencode.Prompt : opencode.api.prompt.Opts
----@field prompt string The prompt to send to `opencode`.
----@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
 
 ---@type opencode.Opts
 local defaults = {
@@ -74,18 +67,6 @@ local defaults = {
     ["@marks"] = function(context) return context:marks() end,
     ["@grapple"] = function(context) return context:grapple_tags() end,
   },
-  prompts = {
-    ask = { prompt = "", ask = true, submit = true },
-    diagnostics = { prompt = "Explain @diagnostics", submit = true },
-    diff = { prompt = "Review the following git diff for correctness and readability: @diff", submit = true },
-    document = { prompt = "Add comments documenting @this", submit = true },
-    explain = { prompt = "Explain @this and its context", submit = true },
-    fix = { prompt = "Fix @diagnostics", submit = true },
-    implement = { prompt = "Implement @this", submit = true },
-    optimize = { prompt = "Optimize @this for performance and readability", submit = true },
-    review = { prompt = "Review @this for correctness and readability", submit = true },
-    test = { prompt = "Add tests for @this", submit = true },
-  },
   ask = {
     prompt = "Ask opencode: ",
     completion = "customlist,v:lua.opencode_completion",
@@ -119,22 +100,31 @@ local defaults = {
   },
   select = {
     prompt = "opencode: ",
-    sections = {
-      prompts = true,
-      commands = {
-        ["session.new"] = "Start a new session",
-        ["session.select"] = "Select a session",
-        ["session.share"] = "Share the current session",
-        ["session.interrupt"] = "Interrupt the current session",
-        ["session.compact"] = "Compact the current session (reduce context size)",
-        ["session.undo"] = "Undo the last action in the current session",
-        ["session.redo"] = "Redo the last undone action in the current session",
-        ["agent.cycle"] = "Cycle the selected agent",
-        ["prompt.submit"] = "Submit the current prompt",
-        ["prompt.clear"] = "Clear the current prompt",
-      },
-      server = true,
+    prompts = {
+      ask = "...",
+      diagnostics = "Explain @diagnostics",
+      diff = "Review the following git diff for correctness and readability: @diff",
+      document = "Add comments documenting @this",
+      explain = "Explain @this and its context",
+      fix = "Fix @diagnostics",
+      implement = "Implement @this",
+      optimize = "Optimize @this for performance and readability",
+      review = "Review @this for correctness and readability",
+      test = "Add tests for @this",
     },
+    commands = {
+      ["session.new"] = "Start a new session",
+      ["session.select"] = "Select a session",
+      ["session.share"] = "Share the current session",
+      ["session.interrupt"] = "Interrupt the current session",
+      ["session.compact"] = "Compact the current session (reduce context size)",
+      ["session.undo"] = "Undo the last action in the current session",
+      ["session.redo"] = "Redo the last undone action in the current session",
+      ["agent.cycle"] = "Cycle the selected agent",
+      ["prompt.submit"] = "Submit the current prompt",
+      ["prompt.clear"] = "Clear the current prompt",
+    },
+    server = true,
     snacks = {
       preview = "preview",
       layout = {
@@ -179,5 +169,9 @@ if not snacks_ok or not snacks.config.get("input", {}).enabled then
   -- and Neovim's native `vim.ui.select` implementation apparently uses those.
   M.opts.ask.snacks = {}
 end
+
+-- Nest `snacks.input` options under `opts.ask.snacks` for consistency with other `snacks`-exclusive config, and to keep its fields optional.
+-- But then merge it here for what `snacks.input` expects.
+M.opts.ask = vim.tbl_deep_extend("force", M.opts.ask, M.opts.ask.snacks)
 
 return M

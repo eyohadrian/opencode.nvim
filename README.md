@@ -56,7 +56,7 @@
 
     -- Recommended/example keymaps
     vim.keymap.set({ "n", "x" }, "<C-a>", function() require("opencode").ask("@this: ", { submit = true }) end, { desc = "Ask opencode…" })
-    vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end,                          { desc = "Execute opencode action…" })
+    vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end,                          { desc = "Select opencode…" })
     vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end,                          { desc = "Toggle opencode" })
 
     vim.keymap.set({ "n", "x" }, "go",  function() return require("opencode").operator("@this ") end,        { desc = "Add range to opencode", expr = true })
@@ -184,11 +184,11 @@ vim.g.opencode_opts = {
 
 Input a prompt for `opencode`.
 
+- End the prompt with a space to append instead of submit.
 - Press `<Up>` to browse recent asks.
 - Highlights and completes contexts and `opencode` subagents.
   - Press `<Tab>` to trigger built-in completion.
-- End the prompt with a space to append instead of submit.
-- When using `snacks.input`, offers completions via in-process LSP.
+  - Provided by in-process LSP when using `snacks.input`.
 
 ### Select — `require("opencode").select()`
 
@@ -204,6 +204,7 @@ Highlights and previews items when using `snacks.picker`.
 
 Prompt `opencode`.
 
+- End the prompt with a space to append instead of submit.
 - Injects configured contexts.
 - `opencode` will interpret references to files or subagents.
 
